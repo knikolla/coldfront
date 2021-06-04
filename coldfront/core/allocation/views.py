@@ -1065,6 +1065,13 @@ class AllocationActivateRequestView(LoginRequiredMixin, UserPassesTestMixin, Vie
         allocation_url = '{}{}'.format(domain_url, reverse(
             'allocation-detail', kwargs={'pk': allocation_obj.pk}))
 
+        allocation_activate.send(
+            sender=self.__class__, allocation_pk=allocation_obj.pk)
+        allocation_users = allocation_obj.allocationuser_set.exclude(status__name__in=['Removed', 'Error'])
+        for allocation_user in allocation_users:
+            allocation_activate_user.send(
+                sender=self.__class__, allocation_user_pk=allocation_user.pk)
+
         if EMAIL_ENABLED:
             template_context = {
                 'center_name': EMAIL_CENTER_NAME,
@@ -1075,10 +1082,7 @@ class AllocationActivateRequestView(LoginRequiredMixin, UserPassesTestMixin, Vie
             }
 
             email_receiver_list = []
-
-            for allocation_user in allocation_obj.allocationuser_set.exclude(status__name__in=['Removed', 'Error']):
-                allocation_activate_user.send(
-                    sender=self.__class__, allocation_user_pk=allocation_user.pk)
+            for allocation_user in allocation_users:
                 if allocation_user.allocation.project.projectuser_set.get(user=allocation_user.user).enable_notifications:
                     email_receiver_list.append(allocation_user.user.email)
 
@@ -1131,6 +1135,13 @@ class AllocationDenyRequestView(LoginRequiredMixin, UserPassesTestMixin, View):
         allocation_url = '{}{}'.format(domain_url, reverse(
             'allocation-detail', kwargs={'pk': allocation_obj.pk}))
 
+        allocation_disable.send(
+            sender=self.__class__, allocation_pk=allocation_obj.pk)
+        allocation_users = allocation_obj.allocationuser_set.exclude(status__name__in=['Removed', 'Error'])
+        for allocation_user in allocation_users:
+            allocation_remove_user.send(
+                sender=self.__class__, allocation_user_pk=allocation_user.pk)
+
         if EMAIL_ENABLED:
             template_context = {
                 'center_name': EMAIL_CENTER_NAME,
@@ -1141,9 +1152,7 @@ class AllocationDenyRequestView(LoginRequiredMixin, UserPassesTestMixin, View):
             }
 
             email_receiver_list = []
-            for allocation_user in allocation_obj.allocationuser_set.exclude(status__name__in=['Removed', 'Error']):
-                allocation_remove_user.send(
-                            sender=self.__class__, allocation_user_pk=allocation_user.pk)
+            for allocation_user in allocation_users:
                 if allocation_user.allocation.project.projectuser_set.get(user=allocation_user.user).enable_notifications:
                     email_receiver_list.append(allocation_user.user.email)
 
