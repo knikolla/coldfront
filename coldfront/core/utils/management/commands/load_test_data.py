@@ -133,6 +133,10 @@ resources = [
     ('Storage', 'University Cloud', 'University Cloud Storage',
      'Storage available to cloud instances', True, True, True),
 
+    # OpenStack
+    ('OpenStack', None, 'Devstack',
+     'OpenStack test cloud environment', True, True, True)
+
 ]
 
 
@@ -561,6 +565,11 @@ class Command(BaseCommand):
             name='slurm_specs'), resource=Resource.objects.get(name='Chemistry-cgray'), value='QOS+=cgray:Fairshare=100')
         ResourceAttribute.objects.get_or_create(resource_attribute_type=ResourceAttributeType.objects.get(
             name='slurm_specs'), resource=Resource.objects.get(name='Physics-sfoster'), value='QOS+=sfoster:Fairshare=100')
+
+        ResourceAttribute.objects.get_or_create(resource_attribute_type=ResourceAttributeType.objects.get(
+            name='OpenStack Auth URL'), resource=Resource.objects.get(name='Devstack'), value='http://10.0.3.2/identity/v3')
+        ResourceAttribute.objects.get_or_create(resource_attribute_type=ResourceAttributeType.objects.get(
+            name='OpenStack Domain for Projects'), resource=Resource.objects.get(name='Devstack'), value='default')
 
         # call_command('loaddata', 'test_data.json')
 

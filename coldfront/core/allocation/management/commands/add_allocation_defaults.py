@@ -31,6 +31,8 @@ class Command(BaseCommand):
             ('EXPIRE NOTIFICATION', 'Yes/No', False, True),
             ('freeipa_group', 'Text', False, False),
             ('Is Course?', 'Yes/No', False, True),
+            ('OpenStack Project ID', 'Text', False, False),
+            ('OpenStack Project Name', 'Text', False, False),
             ('Paid', 'Float', False, False),
             ('Paid Cloud Support (Hours)', 'Float', True, True),
             ('Paid Network Support (Hours)', 'Float', True, True),

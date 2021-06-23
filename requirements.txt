@@ -21,6 +21,7 @@ humanize==0.5.1
 idna==2.8
 pyparsing==2.3.1
 python-dateutil==2.8.0
+python-keystoneclient
 python-memcached==1.59
 pytz==2018.9
 redis==3.2.1
