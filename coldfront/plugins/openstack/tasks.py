@@ -8,9 +8,8 @@ from cinderclient import client as cinderclient
 from neutronclient.v2_0 import client as neutronclient
 from novaclient import client as novaclient
 
-from coldfront.core.allocation.models import (Allocation,
-                                              AllocationAttribute,
-                                              AllocationAttributeType)
+from coldfront.core.allocation.models import Allocation
+from coldfront.plugins.openstack import utils
 
 ALLOCATION_ATTR_PROJECT_ID = 'OpenStack Project ID'
 ALLOCATION_ATTR_PROJECT_NAME = 'OpenStack Project Name'
@@ -21,6 +20,14 @@ RESOURCE_ATTR_IDP = 'OpenStack Identity Provider'
 RESOURCE_ATTR_PROJECT_DOMAIN = 'OpenStack Domain for Projects'
 RESOURCE_ATTR_ROLE = 'OpenStack Role for User in Project'
 RESOURCE_ATTR_USER_DOMAIN = 'OpenStack Domain for Users'
+
+NOVA_VERSION = '2'
+# Mapping of allocation attribute name for Quota, and what Nova expects
+NOVA_KEY_MAPPING = {
+    'OpenStack Compute Instance Quota': 'instances',
+    'OpenStack Compute vCPU Quota': 'cores',
+    'OpenStack Compute RAM Quota': 'ram',
+}
 
 
 def is_openstack_resource(resource):
@@ -51,25 +58,6 @@ def get_session_for_resource(resource):
     return session.Session(auth)
 
 
-def add_attribute_to_allocation(allocation, attribute_type, attribute_value):
-    allocation_attribute_type_obj = AllocationAttributeType.objects.get(
-        name=attribute_type)
-    AllocationAttribute.objects.create(
-        allocation_attribute_type=allocation_attribute_type_obj,
-        allocation=allocation,
-        value=attribute_value,
-    )
-
-
-NOVA_VERSION = '2'
-# Mapping of allocation attribute name for Quota, and what Nova expects
-NOVA_KEY_MAPPING = {
-    'OpenStack Compute Instance Quota': 'instances',
-    'OpenStack Compute vCPU Quota': 'cores',
-    'OpenStack Compute RAM Quota': 'ram',
-}
-
-
 def activate_allocation(allocation_pk):
     def set_nova_quota():
         compute = novaclient.Client(NOVA_VERSION, session=ksa_session)
@@ -96,11 +84,11 @@ def activate_allocation(allocation_pk):
             enabled=True,
         )
 
-        add_attribute_to_allocation(allocation,
-                                    ALLOCATION_ATTR_PROJECT_NAME,
-                                    openstack_project_name)
-        add_attribute_to_allocation(allocation,
-                                    ALLOCATION_ATTR_PROJECT_ID,
-                                    openstack_project.id)
+        utils.add_attribute_to_allocation(allocation,
+                                          ALLOCATION_ATTR_PROJECT_NAME,
+                                          openstack_project_name)
+        utils.add_attribute_to_allocation(allocation,
+                                          ALLOCATION_ATTR_PROJECT_ID,
+                                          openstack_project.id)
 
         set_nova_quota()
