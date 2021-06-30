@@ -567,9 +567,17 @@ class Command(BaseCommand):
             name='slurm_specs'), resource=Resource.objects.get(name='Physics-sfoster'), value='QOS+=sfoster:Fairshare=100')
 
         ResourceAttribute.objects.get_or_create(resource_attribute_type=ResourceAttributeType.objects.get(
-            name='OpenStack Auth URL'), resource=Resource.objects.get(name='Devstack'), value='http://10.0.3.2/identity/v3')
+            name='OpenStack Auth URL'), resource=Resource.objects.get(name='Devstack'), value='http://10.0.3.2/identity')
         ResourceAttribute.objects.get_or_create(resource_attribute_type=ResourceAttributeType.objects.get(
             name='OpenStack Domain for Projects'), resource=Resource.objects.get(name='Devstack'), value='default')
+        ResourceAttribute.objects.get_or_create(resource_attribute_type=ResourceAttributeType.objects.get(
+            name='OpenStack Domain for Users'), resource=Resource.objects.get(name='Devstack'), value='default')
+        ResourceAttribute.objects.get_or_create(resource_attribute_type=ResourceAttributeType.objects.get(
+            name='OpenStack Identity Provider'), resource=Resource.objects.get(name='Devstack'), value='sso')
+        ResourceAttribute.objects.get_or_create(resource_attribute_type=ResourceAttributeType.objects.get(
+            name='OpenStack Federation Protocol'), resource=Resource.objects.get(name='Devstack'), value='openid')
+        ResourceAttribute.objects.get_or_create(resource_attribute_type=ResourceAttributeType.objects.get(
+            name='OpenStack Role for User in Project'), resource=Resource.objects.get(name='Devstack'), value='member')
 
         # call_command('loaddata', 'test_data.json')
 
