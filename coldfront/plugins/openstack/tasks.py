@@ -166,3 +166,27 @@ def add_user_to_allocation(allocation_user_pk):
 
         role = identity.roles.find(name=role_name)
         identity.roles.grant(user=user_id, project=project_id, role=role)
+
+
+def remove_user_from_allocation(allocation_user_pk):
+    allocation_user = AllocationUser.objects.get(pk=allocation_user_pk)
+    allocation = allocation_user.allocation
+
+    resource = allocation.resources.first()
+    if is_openstack_resource(resource):
+        ksa_session = get_session_for_resource(resource)
+        identity = client.Client(session=ksa_session)
+
+        username = allocation_user.user.username
+
+        query_response = ksa_session.get(
+            f'{resource.get_attribute(RESOURCE_ATTR_AUTH_URL)}/v3/users?unique_id={username}'
+        ).json()
+        if query_response['users']:
+            user_id = query_response['users'][0]['id']
+
+            role_name = resource.get_attribute(RESOURCE_ATTR_ROLE) or 'member'
+            role = identity.roles.find(name=role_name)
+            project_id = allocation.get_attribute(ALLOCATION_ATTR_PROJECT_ID)
+
+            identity.roles.revoke(user=user_id, project=project_id, role=role)
