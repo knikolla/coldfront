@@ -119,6 +119,18 @@ def activate_allocation(allocation_pk):
         set_nova_quota()
 
 
+def disable_allocation(allocation_pk):
+    allocation = Allocation.objects.get(pk=allocation_pk)
+
+    resource = allocation.resources.first()
+    if is_openstack_resource(resource):
+        ksa_session = get_session_for_resource(resource)
+        identity = client.Client(session=ksa_session)
+
+        identity.projects.update(allocation.get_attribute(ALLOCATION_ATTR_PROJECT_ID),
+                                 enabled=False)
+
+
 def add_user_to_allocation(allocation_user_pk):
     allocation_user = AllocationUser.objects.get(pk=allocation_user_pk)
     allocation = allocation_user.allocation
